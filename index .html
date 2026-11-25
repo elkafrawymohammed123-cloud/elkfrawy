@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Elkfrawy | حضور يدوي</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+:root{--bg:#EEF3F1;--surface:#fff;--ink:#12241F;--muted:#5D706A;--line:#D5E0DC;--brand:#14342B;--ok:#1F7A5C;--ok-bg:#E0F2EA;--no:#B83A3A;--no-bg:#FBE6E4;--late:#9A5F0C;--late-bg:#FBF0D9;--on:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0E1815;--surface:#16251F;--ink:#E6F0EC;--muted:#93A8A1;--line:#27403A;--brand:#0A1F19;--ok:#4CC39A;--ok-bg:#173A2E;--no:#F08A84;--no-bg:#3E1F1D;--late:#E6B450;--late-bg:#3D3217;--on:#06231a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0E1815;--surface:#16251F;--ink:#E6F0EC;--muted:#93A8A1;--line:#27403A;--brand:#0A1F19;--ok:#4CC39A;--ok-bg:#173A2E;--no:#F08A84;--no-bg:#3E1F1D;--late:#E6B450;--late-bg:#3D3217;--on:#06231a;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Cairo",Tahoma,"Segoe UI",sans-serif;line-height:1.6}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--brand);z-index:30}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--brand);color:#fff;padding:12px 16px;display:flex;gap:12px;align-items:center;height:62px}
+.brand{font-weight:800;font-size:22px;direction:ltr;white-space:nowrap}
+.brand small{font-weight:400;font-size:13px;opacity:.7;margin-inline-start:8px;direction:rtl;display:inline-block}
+.search{flex:1;min-width:0}
+input,select,textarea{font:inherit;color:inherit}
+.search input{width:100%;border:0;border-radius:10px;padding:8px 14px;background:rgba(255,255,255,.14);color:#fff}
+.search input::placeholder{color:rgba(255,255,255,.65)}
+#mn,#thb{background:rgba(255,255,255,.14);color:#fff;height:38px;font-size:15px;padding:0 12px;white-space:nowrap}#mn{width:38px;padding:0;font-size:18px}
+button{font:inherit;cursor:pointer;border:0;border-radius:10px}
+:focus-visible{outline:3px solid var(--ok);outline-offset:2px}
+.app{max-width:760px;margin:0 auto}
+aside{position:fixed;top:calc(env(safe-area-inset-top,0px) + 62px);inset-inline-start:0;bottom:0;width:250px;background:var(--surface);border-inline-end:1px solid var(--line);padding:16px;z-index:15;overflow:auto;transform:translateX(100%);transition:transform .2s}
+body.open aside{transform:none}
+#ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:14}body.open #ov{display:block}
+aside h4{margin:14px 0 6px;font-size:13px;color:var(--muted);font-weight:600}
+aside .it{display:flex;justify-content:space-between;width:100%;text-align:start;background:transparent;color:var(--ink);padding:13px 14px;margin-bottom:4px;font-size:17px}
+aside .it[aria-current="true"]{background:var(--ok-bg);color:var(--ok);font-weight:600}
+aside .it span{color:var(--muted);font-size:13px}
+.th{display:flex;gap:4px}.th button{flex:1;padding:6px 0;font-size:13px;background:var(--surface);border:1px solid var(--line);color:var(--ink)}
+.th button[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:var(--on)}
+main{flex:1;min-width:0;padding:16px}
+h2{margin:0 0 14px;font-size:22px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px}
+.srow,.add,.tools{display:flex;gap:8px;flex-wrap:wrap}.srow{margin-bottom:12px}.tools{margin-top:10px}
+select,.dt,textarea,.add input,.fee{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:8px 10px}
+.srow select{flex:1;min-width:0}
+.sname{width:100%;border:0;border-bottom:2px dashed var(--line);background:transparent;font-size:20px;font-weight:800;padding:2px 0;outline-offset:4px}
+.meta{display:flex;gap:10px;align-items:center;margin:10px 0 14px;color:var(--muted);font-size:14px}.fee{width:90px}
+.bar{display:flex;height:12px;border-radius:6px;background:var(--no-bg);overflow:hidden}
+.bar i{display:block;height:100%;width:0;transition:width .3s}.bar .p{background:var(--ok)}.bar .l{background:var(--late)}
+.stats{display:flex;justify-content:space-between;gap:6px;flex-wrap:wrap;margin-top:8px;font-size:14px;color:var(--muted)}
+.stats b{font-size:18px;color:var(--ink)}
+.add input{flex:1 1 140px;min-width:0;padding:10px 12px}
+.primary{background:var(--ok);color:var(--on);padding:10px 18px;font-weight:600;display:inline-block;text-decoration:none;border-radius:10px}
+.ghost{background:transparent;border:1px solid var(--line);color:var(--ink);padding:6px 12px;font-size:14px}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;background:var(--surface);border:1px solid var(--line);border-inline-start:6px solid var(--no);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.row.p{border-inline-start-color:var(--ok)}.row.l{border-inline-start-color:var(--late)}.row.n{border-inline-start:1px solid var(--line)}
+.nm{flex:1 1 130px;min-width:0;font-size:17px;font-weight:600;overflow-wrap:anywhere}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{background:transparent;color:var(--muted);padding:9px 14px;border-radius:0;font-size:15px}
+.seg .on[data-s="a"]{background:var(--no);color:var(--on)}.seg .on[data-s="l"]{background:var(--late);color:var(--on)}.seg .on[data-s="p"]{background:var(--ok);color:var(--on)}
+.pay{background:var(--no-bg);color:var(--no);padding:6px 12px;font-size:14px}.pay.on{background:var(--ok-bg);color:var(--ok)}
+.row input{flex:1 1 110px;min-width:0;border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:6px 8px}
+.x{background:transparent;color:var(--muted);font-size:22px;padding:0 8px}.x:hover{color:var(--no)}
+.empty{color:var(--muted);text-align:center;padding:14px;font-size:15px}
+h3{margin:18px 0 8px;font-size:17px}
+.tbl{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+table{width:100%;border-collapse:collapse;min-width:460px}
+th,td{padding:10px 12px;text-align:start;border-bottom:1px solid var(--line);font-size:15px}th{color:var(--muted);font-weight:600;font-size:13px}
+.pc{padding:2px 10px;border-radius:99px;font-weight:600;font-size:14px}
+.pc.hi{background:var(--ok-bg);color:var(--ok)}.pc.mid{background:var(--late-bg);color:var(--late)}.pc.lo{background:var(--no-bg);color:var(--no)}
+textarea{width:100%;height:100px;margin:10px 0}
+label{display:flex;gap:8px;align-items:center;font-weight:600}
+.toast{position:fixed;inset-inline:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));max-width:420px;margin-inline:auto;background:var(--brand);color:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;z-index:40}
+.toast .ghost{color:#fff;border-color:rgba(255,255,255,.5)}
+dialog{border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);text-align:center;padding:20px}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+#qb{margin:12px 0;line-height:0}#qb svg{border-radius:8px;max-width:100%;height:auto}
+#lock{min-height:80vh;display:flex;align-items:center;justify-content:center;padding:16px}
+#lock .panel{width:100%;max-width:340px;text-align:center}
+#lock input{width:100%;margin:12px 0;padding:10px 12px;border:1px solid var(--line);background:var(--bg);border-radius:10px;direction:ltr;text-align:center}
+#lock .primary{width:100%}#err{color:var(--no);font-size:14px;min-height:22px}
+@media(max-width:600px){.brand small{display:none}}
+</style>
+</head>
+<body>
+<header>
+  <button id="mn" aria-label="القائمة">☰</button>
+  <div class="brand">Elkfrawy<small>حضور يدوي</small></div>
+  <div class="search"><input id="q" type="search" placeholder="بحث سريع عن طالب…" aria-label="بحث سريع عن طالب"></div>
+  <button id="thb"></button>
+</header>
+
+<div id="lock">
+  <div class="panel">
+    <h2>Elkfrawy</h2>
+    <input id="em" type="email" placeholder="الإيميل" aria-label="الإيميل" autocomplete="username"><input id="pw" type="password" placeholder="كلمة المرور" aria-label="كلمة المرور" autocomplete="current-password">
+    <div id="err"></div>
+    <button class="primary" id="go">دخول</button>
+  </div>
+</div>
+
+<div class="app" id="app" hidden>
+  <div id="ov"></div><aside id="side"></aside>
+  <main>
+    <div class="srow"><h2 id="gt" style="flex:1;margin:0"></h2><select id="gsel" aria-label="الصف"></select></div>
+
+    <div id="v-att">
+      <section class="panel">
+        <select id="ses" aria-label="الحصة" style="width:100%;margin-bottom:12px"></select>
+        <div class="bar"><i class="p" id="bp"></i><i class="l" id="bl"></i></div>
+        <div class="stats"><span>حاضر <b id="cP">0</b></span><span>متأخر <b id="cL">0</b></span><span>غائب <b id="cA">0</b></span><span>دفعوا <b id="cD">0</b></span><span>الإجمالي <b id="cT">0</b></span></div>
+      </section>
+      <section class="panel">
+        <div class="tools"><button class="ghost" id="allP">تحضير الكل</button><button class="ghost" id="allA">تغييب الكل</button><button class="ghost" id="cpR">نسخ التقرير</button><input id="cd" class="dt" placeholder="تحضير بالكود (QR)" aria-label="تحضير بالكود"></div>
+      </section>
+      <div id="list"></div>
+    </div>
+
+    <div id="v-ses" hidden><button class="primary" id="newS" style="width:100%;margin-bottom:12px">+ حصة جديدة</button><div id="sesl"></div></div>
+
+    <div id="v-qr" hidden>
+      <section class="panel">
+        <div class="add"><input id="qn2" placeholder="اسم الطالب" aria-label="اسم الطالب"><select id="qg" aria-label="الصف" style="flex:1 1 140px"></select></div>
+        <div class="add" style="margin-top:8px"><input id="qp" type="tel" placeholder="واتساب ولي الأمر (اختياري)" aria-label="رقم واتساب"><button class="primary" id="qmk">إنشاء وتسجيل</button></div>
+        <div class="empty" style="padding:10px 0 0;text-align:start">بيتسجل الطالب في الصف المختار فورًا، ولكل طالب كود QR مختلف.</div>
+      </section>
+    </div>
+
+    <div id="v-scan" hidden>
+      <section class="panel" style="text-align:center">
+        <video id="vid" playsinline muted hidden style="width:100%;max-height:340px;border-radius:12px;background:#000"></video>
+        <div id="sres" class="empty">اضغط التقاط صورة للكود وصوّر كود الطالب، وهيتسجل حاضر على طول</div>
+        <div class="tools" style="justify-content:center"><button class="ghost" id="scOn">تشغيل الكاميرا</button><button class="ghost" id="scOff" hidden>إيقاف</button><label class="primary" style="display:inline-flex;cursor:pointer">التقاط صورة للكود<input id="scF" type="file" accept="image/*" capture="environment" hidden></label></div>
+      <div id="camAsk" hidden style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line)"><b>السماح للكاميرا؟</b><div class="empty">الصفحة محتاجة تفتح الكاميرا عشان تقرأ أكواد الطلاب. الصور مش بتتحفظ ولا بتتبعت لأي مكان.</div><div class="tools" style="justify-content:center"><button class="primary" id="camYes">سماح</button><button class="ghost" id="camNo">لا</button></div></div>
+      </section>
+      <h3>تم تحضيرهم الآن</h3><div id="slog"></div>
+    </div>
+
+    <div id="v-bk" hidden>
+      <section class="panel">
+        <div class="empty" id="bkS" style="text-align:start"></div>
+        <b>انقل بياناتك لموبايل تاني</b>
+        <div class="empty" style="text-align:start">البيانات (الطلاب والحضور والمدفوعات) محفوظة على كل جهاز لوحده، فمش بتنتقل مع الرابط. اضغط نسخ كل البيانات وابعتها لنفسك في واتساب، وعلى الموبايل التاني الصقها هنا واضغط استعادة.</div>
+        <div class="tools"><button class="primary" id="bkC">نسخ كل البيانات</button></div>
+        <textarea id="bk" aria-label="البيانات" style="direction:ltr;font-size:12px" placeholder="الصق البيانات هنا على الموبايل الجديد"></textarea>
+        <div class="tools"><button class="primary" id="bkR">استعادة من النص</button></div>
+        <div class="empty" id="bkM">الاستعادة بتستبدل البيانات الموجودة على الجهاز ده، وفيه زرار تراجع بعدها.</div>
+      </section>
+    </div>
+
+    <div id="v-pay" hidden><div id="pay"></div></div>
+
+    <div id="v-wa" hidden>
+      <section class="panel">
+        <label><input type="checkbox" id="ok"> بإذن صاحب النظام: أوافق على إرسال الرسائل</label>
+        <textarea id="tpl" aria-label="نص الرسالة"></textarea>
+        <div class="empty" style="padding:0;text-align:start">المتغيرات: {الاسم} {الحصة} {التاريخ}</div>
+        <div class="tools"><a class="primary" id="waR" target="_blank" rel="noopener">إرسال تقرير الحصة</a></div>
+      </section>
+      <h3>الغائبون</h3><div id="wa"></div>
+    </div>
+
+    <div id="v-rep" hidden><div id="rep"></div></div>
+    <div id="v-stu" hidden><section class="panel"><div class="add"><input id="nm" placeholder="اسم الطالب (أو الصق عدة أسماء)" aria-label="اسم الطالب"><input id="ph" type="tel" placeholder="واتساب ولي الأمر" aria-label="رقم واتساب"><button class="primary" id="addBtn">إضافة</button></div></section><div id="stu"></div></div>
+  </main>
+</div>
+
+<dialog id="qd">
+  <b id="qn"></b>
+  <div id="qb"></div>
+  <div class="th" id="qt"><button data-q="l">فاتح</button><button data-q="d">غامق</button></div>
+  <div id="qm" class="empty" style="padding:0 0 8px"></div>
+  <div class="tools" style="justify-content:center"><button class="primary" id="qs">حفظ كصورة PNG</button><button class="ghost" id="qx">إغلاق</button></div>
+</dialog>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+var K="elkfrawy:v3",$=function(i){return document.getElementById(i)};
+var GR=[["g4","الرابع الابتدائي"],["g5","الخامس الابتدائي"],["g6","السادس الابتدائي"],["p1","الأول الإعدادي"],["p2","الثاني الإعدادي"],["p3","الثالث الإعدادي"]];
+var NV=[["att","التحضير"],["scan","الاسكان"],["ses","الحصص"],["qr","إنشاء QR"],["stu","الطلاب"],["pay","المدفوعات"],["wa","رسائل واتساب"],["rep","التقارير"],["bk","نقل البيانات"]];
+var ST={a:"غائب",l:"متأخر",p:"حاضر"},PL={p:"الحاضرون",l:"المتأخرون",a:"الغائبون"};
+var TPL="السلام عليكم، نفيدكم بأن الطالب/ة {الاسم} تغيب عن {الحصة} بتاريخ {التاريخ}. برجاء المتابعة. إدارة Elkfrawy";
+var TAB="att",W=false,QD=false,QS=null,QG="",DL=null,tt;
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function iso(){var d=new Date();return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)}
+function load(){
+  try{
+    var r=localStorage.getItem(K);
+    if(r){var p=JSON.parse(r);if(p&&p.students&&p.sessions)return p}
+    var o=localStorage.getItem("elkfrawy:v2");
+    if(o){var v=JSON.parse(o);v.students.forEach(function(s){s.g="g4"});v.sessions.forEach(function(s){s.g="g4";s.paid={};s.fee=0});v.grade="g4";return v}
+  }catch(e){}
+  return{grade:"g4",students:[],sessions:[],theme:"auto"}
+}
+var D=load();
+function saveLocal(){try{localStorage.setItem(K,JSON.stringify(D))}catch(e){}}
+function save(){saveLocal();push()}
+function gs(){return D.sessions.filter(function(s){return s.g===D.grade})}
+function gst(){return D.students.filter(function(s){return s.g===D.grade})}
+function mk(n,f){return{id:uid(),g:D.grade,name:"حصة "+n,date:iso(),fee:f||0,marks:{},paid:{}}}
+function cur(){var l=gs(),c=l.filter(function(s){return s.id===D.cur})[0];if(!c){c=l[l.length-1];if(!c){c=mk(1);D.sessions.push(c)}D.cur=c.id}return c}
+function stat(c,id){return c.marks[id]||"a"}
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+function gname(){return GR.filter(function(g){return g[0]===D.grade})[0][1]}
+function ph(p){p=(p||"").replace(/[٠-٩]/g,function(d){return d.charCodeAt(0)-1632}).replace(/\D/g,"");if(!p)return"";if(p.indexOf("00")===0)p=p.slice(2);else if(p[0]==="0")p="20"+p.slice(1);return p}
+function toast(msg,undo){
+  var t=$("toast");t.textContent=msg;
+  if(undo){var b=el("button","ghost","تراجع");b.onclick=function(){D=JSON.parse(undo);save();t.hidden=true;render()};t.appendChild(b)}
+  t.hidden=false;clearTimeout(tt);tt=setTimeout(function(){t.hidden=true},5000)
+}
+function copy(t,msg){
+  function ok(){toast(msg||"تم النسخ")}
+  function fb(){var a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy");ok()}catch(e){toast("تعذر النسخ")}a.remove()}
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok,fb);else fb()
+}
+function report(){
+  var c=cur(),g={p:[],l:[],a:[]};
+  gst().forEach(function(s){g[stat(c,s.id)].push(s.name)});
+  var o="Elkfrawy - "+gname()+" - "+c.name+" - "+c.date+"\n";
+  ["p","l","a"].forEach(function(k){o+="\n"+PL[k]+" ("+g[k].length+")"+(g[k].length?":\n"+g[k].map(function(n,i){return(i+1)+". "+n}).join("\n"):"")+"\n"});
+  return o
+}
+function msg(s,c){return(D.tpl||TPL).replace(/\{الاسم\}/g,s.name).replace(/\{الحصة\}/g,c.name).replace(/\{التاريخ\}/g,c.date)}
+function wl(n,t){return"https://wa.me/"+n+"?text="+encodeURIComponent(t)}
+function renderNav(){
+  var S=$("side");S.textContent="";
+  NV.forEach(function(n){var b=el("button","it",n[1]);if(n[0]===TAB)b.setAttribute("aria-current","true");b.onclick=function(){tab(n[0])};S.appendChild(b)});
+  var o=el("button","ghost","خروج");o.style.marginTop="14px";o.onclick=lock;S.appendChild(o)
+}
+function isDark(){return D.theme==="dark"||(D.theme!=="light"&&window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)}
+function theme(){var r=document.documentElement;if(D.theme==="auto")r.removeAttribute("data-theme");else r.setAttribute("data-theme",D.theme);$("thb").textContent=isDark()?"☀ فاتح":"☾ داكن"}
+function renderAtt(){
+  var c=cur(),q=$("q").value.trim().toLowerCase(),L=gst(),t=L.length,n={p:0,l:0,a:0},d=0;
+  var sel=$("ses");sel.textContent="";
+  gs().forEach(function(s){var o=el("option",null,s.name+" ("+s.date+")");o.value=s.id;if(s.id===c.id)o.selected=true;sel.appendChild(o)});
+  L.forEach(function(s){n[stat(c,s.id)]++;if(c.paid[s.id])d++});
+  $("cP").textContent=n.p;$("cL").textContent=n.l;$("cA").textContent=n.a;$("cD").textContent=d;$("cT").textContent=t;
+  $("bp").style.width=(t?n.p/t*100:0)+"%";$("bl").style.width=(t?n.l/t*100:0)+"%";
+  var B=$("list");B.textContent="";
+  var vis=L.filter(function(s){return!q||s.name.toLowerCase().indexOf(q)>-1});
+  if(!vis.length){B.appendChild(el("div","empty",t?"لا توجد نتائج":"ابدأ بإضافة طلاب هذا الصف من قسم الطلاب في القائمة"));return}
+  vis.forEach(function(s){
+    var k=stat(c,s.id),r=el("div","row "+k);r.appendChild(el("span","nm",s.name));
+    var g=el("div","seg");
+    ["a","l","p"].forEach(function(m){var b=el("button",k===m?"on":"",ST[m]);b.type="button";b.setAttribute("data-s",m);
+      b.onclick=function(){if(m==="a")delete c.marks[s.id];else c.marks[s.id]=m;save();renderAtt()};g.appendChild(b)});
+    var pb=el("button","pay"+(c.paid[s.id]?" on":""),c.paid[s.id]?"دفع":"لم يدفع");pb.type="button";
+    pb.onclick=function(){if(c.paid[s.id])delete c.paid[s.id];else c.paid[s.id]=1;save();renderAtt()};
+    r.appendChild(g);r.appendChild(pb);B.appendChild(r)})
+}
+function renderSes(){
+  var B=$("sesl");cur();B.textContent="";
+  gs().slice().reverse().forEach(function(s){
+    var r=el("div","row "+(s.id===D.cur?"p":"n")),n=el("input"),d=el("input"),f=el("input");
+    n.value=s.name;n.maxLength=60;n.setAttribute("aria-label","اسم الحصة");n.oninput=function(){s.name=n.value;save()};
+    d.type="date";d.value=s.date;d.setAttribute("aria-label","التاريخ");d.onchange=function(){if(d.value){s.date=d.value;save()}};
+    f.type="number";f.min=0;f.value=s.fee||"";f.placeholder="السعر ج";f.setAttribute("aria-label","سعر الحصة");f.oninput=function(){s.fee=+f.value||0;save()};
+    var o=el("button","primary","فتح");o.onclick=function(){D.cur=s.id;save();tab("att")};
+    var x=el("button","x","×");x.setAttribute("aria-label","حذف الحصة");
+    x.onclick=function(){var sn=JSON.stringify(D);D.sessions=D.sessions.filter(function(z){return z.id!==s.id});D.cur=null;save();renderSes();toast("تم حذف الحصة",sn)};
+    r.appendChild(n);r.appendChild(d);r.appendChild(f);r.appendChild(o);r.appendChild(x);B.appendChild(r)})
+}
+function renderPay(){
+  var c=cur(),B=$("pay");B.textContent="";var L=gst();
+  var y=L.filter(function(s){return c.paid[s.id]}),no=L.filter(function(s){return!c.paid[s.id]});
+  var p=el("div","panel","دفع "+y.length+" من "+L.length+" في "+c.name+"، المحصّل "+y.length*(c.fee||0)+" ج");B.appendChild(p);
+  [["دفعوا",y],["لم يدفعوا",no]].forEach(function(g){
+    B.appendChild(el("h3",null,g[0]+" ("+g[1].length+")"));
+    if(!g[1].length)B.appendChild(el("div","empty","لا أحد"));
+    g[1].forEach(function(s){var r=el("div","row n");r.appendChild(el("span","nm",s.name));
+      var b=el("button","pay"+(c.paid[s.id]?" on":""),c.paid[s.id]?"إلغاء الدفع":"تسجيل دفع");
+      b.onclick=function(){if(c.paid[s.id])delete c.paid[s.id];else c.paid[s.id]=1;save();renderPay()};r.appendChild(b);B.appendChild(r)})})
+}
+function waList(){
+  var c=cur(),B=$("wa");B.textContent="";
+  var ab=gst().filter(function(s){return stat(c,s.id)==="a"});
+  $("waR").href=W?wl("",report()):"#";$("waR").style.opacity=W?1:.5;
+  if(!ab.length)B.appendChild(el("div","empty","لا يوجد غائبون في هذه الحصة"));
+  ab.forEach(function(s){
+    var r=el("div","row"),n=ph(s.phone);r.appendChild(el("span","nm",s.name));
+    if(!n)r.appendChild(el("span",null,"لا يوجد رقم (أضفه من تبويب الطلاب)"));
+    else if(!W)r.appendChild(el("span",null,"فعّل الإذن أولاً"));
+    else{var a=el("a","primary","إرسال واتساب");a.href=wl(n,msg(s,c));a.target="_blank";a.rel="noopener";r.appendChild(a)}
+    B.appendChild(r)})
+}
+function renderWA(){$("ok").checked=W;$("tpl").value=D.tpl||TPL;waList()}
+function renderRep(){
+  var B=$("rep");B.textContent="";var ses=gs(),N=ses.length,L=gst();
+  if(!L.length){B.appendChild(el("div","empty","أضف طلابًا لهذا الصف لتظهر التقارير"));return}
+  var rows=L.map(function(s){var p=0,l=0,d=0;ses.forEach(function(c){var k=c.marks[s.id];if(k==="p")p++;else if(k==="l")l++;if(c.paid[s.id])d++});
+    return{n:s.name,p:p,l:l,a:N-p-l,d:d,pc:N?Math.round((p+l)/N*100):0}});
+  rows.sort(function(x,y){return x.pc-y.pc});
+  B.appendChild(el("div","empty","عدد الحصص "+N+"، الأقل حضورًا في الأعلى"));
+  var w=el("div","tbl"),t=el("table"),h=el("tr");
+  ["الطالب","حاضر","متأخر","غائب","دفع","النسبة"].forEach(function(x){h.appendChild(el("th",null,x))});t.appendChild(h);
+  rows.forEach(function(r){var tr=el("tr");[r.n,r.p,r.l,r.a,r.d].forEach(function(v){tr.appendChild(el("td",null,v))});
+    var td=el("td");td.appendChild(el("span","pc "+(r.pc<60?"lo":r.pc<80?"mid":"hi"),r.pc+"%"));tr.appendChild(td);t.appendChild(tr)});
+  w.appendChild(t);B.appendChild(w)
+}
+function renderStu(){
+  var B=$("stu");B.textContent="";var L=gst();
+  if(!L.length)B.appendChild(el("div","empty","لا يوجد طلاب في هذا الصف"));
+  L.forEach(function(s){
+    var r=el("div","row n"),i=el("input"),p=el("input");
+    i.value=s.name;i.setAttribute("aria-label","اسم الطالب");p.value=s.phone||"";p.type="tel";p.placeholder="واتساب ولي الأمر";p.setAttribute("aria-label","رقم واتساب");
+    i.onchange=function(){var v=i.value.trim();if(v){s.name=v;save()}else i.value=s.name};
+    p.onchange=function(){s.phone=p.value.trim();save()};
+    var q=el("button","ghost","QR");q.onclick=function(){showQR(s)};
+    var x=el("button","x","×");x.type="button";x.setAttribute("aria-label","حذف "+s.name);
+    x.onclick=function(){var sn=JSON.stringify(D);D.students=D.students.filter(function(z){return z.id!==s.id});D.sessions.forEach(function(c){delete c.marks[s.id];delete c.paid[s.id]});save();render();toast("تم حذف "+s.name,sn)};
+    r.appendChild(i);r.appendChild(p);r.appendChild(q);r.appendChild(x);B.appendChild(r)})
+}
+var SC=null,BD=null,LOGS=[],lastC="",lastT=0;
+function hit(txt){
+  var id=String(txt).trim().replace(/^EK:/i,""),s=D.students.filter(function(x){return x.id===id})[0];
+  if(!s)return "كود غير معروف";
+  if(s.g!==D.grade){D.grade=s.g;D.cur=null}
+  cur().marks[s.id]="p";save();
+  LOGS.unshift(s.name+" (الصف "+gn(s.g)+")");LOGS=LOGS.slice(0,20);
+  return "✓ تم تحضير "+s.name+" (الصف "+gn(s.g)+")"
+}
+function renderScan(){
+  var B=$("slog");B.textContent="";
+  if(!LOGS.length)B.appendChild(el("div","empty","لسه محدش اتسجل"));
+  LOGS.forEach(function(t){var r=el("div","row p");r.appendChild(el("span","nm",t));B.appendChild(r)})
+}
+async function decode(src){
+  try{if(window.BarcodeDetector){BD=BD||new BarcodeDetector({formats:["qr_code"]});var a=await BD.detect(src);if(a.length)return a[0].rawValue}}catch(e){}
+  if(typeof jsQR!=="undefined"){
+    var w=src.videoWidth||src.naturalWidth||src.width,h=src.videoHeight||src.naturalHeight||src.height;if(!w)return null;
+    var k=Math.min(1,800/w),cv=document.createElement("canvas");cv.width=Math.round(w*k);cv.height=Math.round(h*k);
+    var x=cv.getContext("2d");x.drawImage(src,0,0,cv.width,cv.height);
+    var d=x.getImageData(0,0,cv.width,cv.height),q=jsQR(d.data,d.width,d.height);return q?q.data:null
+  }
+  return null
+}
+function camLoop(){
+  if(!SC)return;var v=$("vid");
+  (v.readyState>=2?decode(v):Promise.resolve(null)).then(function(t){
+    if(t){var n=Date.now();if(t!==lastC||n-lastT>3000){lastC=t;lastT=n;$("sres").textContent=hit(t);renderScan();if(navigator.vibrate)navigator.vibrate(80)}}
+    setTimeout(camLoop,250)})
+}
+async function camStart(){
+  var r=$("sres");
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){r.textContent="الكاميرا غير متاحة هنا، استخدم زرار التقاط صورة للكود";return}
+  try{SC=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"},audio:false})}
+  catch(e){SC=null;r.textContent="الكاميرا المباشرة ممنوعة في الصفحة دي ("+((e&&e.name)||"خطأ")+")، استخدم زرار التقاط صورة للكود";return}
+  var v=$("vid");v.srcObject=SC;v.hidden=false;try{await v.play()}catch(e){}
+  $("scOn").hidden=true;$("scOff").hidden=false;r.textContent="وجّه الكاميرا ناحية الكود…";camLoop()
+}
+function camStop(){
+  if(SC){SC.getTracks().forEach(function(t){t.stop()});SC=null}
+  $("vid").hidden=true;$("scOn").hidden=false;$("scOff").hidden=true
+}
+var DB=null,SYN=false,BASE={s:{},x:{}},Q=Promise.resolve(),pt=null,PEND=0;
+function cp(o){return JSON.parse(JSON.stringify(o||{}))}
+function mta(c){return JSON.stringify([c.g,c.name,c.date,c.fee||0])}
+function setBase(){BASE={s:{},x:{}};D.students.forEach(function(s){BASE.s[s.id]=JSON.stringify(s)});D.sessions.forEach(function(c){BASE.x[c.id]={m:mta(c),k:cp(c.marks),p:cp(c.paid)}})}
+function diff(a,b){var r=null;b=b||{};Object.keys(b).forEach(function(k){if(a[k]!==b[k])(r=r||{})[k]=b[k]});Object.keys(a).forEach(function(k){if(!(k in b))(r=r||{})[k]=typeof a[k]==="number"?0:"a"});return r}
+function q(f){PEND++;Q=Q.then(f).catch(function(){}).then(function(){PEND--})}
+function push(){if(!DB||!SYN)return;clearTimeout(pt);pt=setTimeout(function(){pt=null;doPush()},400)}
+function doPush(){
+  var cs=DB.collection("students"),cx=DB.collection("sessions"),ids={},sid={};
+  D.students.forEach(function(s){ids[s.id]=1;var j=JSON.stringify(s);if(BASE.s[s.id]!==j){BASE.s[s.id]=j;q(function(){return cs.doc(s.id).set(cp(s))})}});
+  Object.keys(BASE.s).forEach(function(id){if(!ids[id]){delete BASE.s[id];q(function(){return cs.doc(id).delete()})}});
+  D.sessions.forEach(function(c){
+    sid[c.id]=1;var b=BASE.x[c.id],m=mta(c);
+    if(!b){BASE.x[c.id]={m:m,k:cp(c.marks),p:cp(c.paid)};q(function(){return cx.doc(c.id).set({g:c.g,name:c.name,date:c.date,fee:c.fee||0,marks:cp(c.marks),paid:cp(c.paid)})});return}
+    var u={},ch=false,mk=diff(b.k,c.marks),pd=diff(b.p,c.paid);
+    if(b.m!==m){u.g=c.g;u.name=c.name;u.date=c.date;u.fee=c.fee||0;b.m=m;ch=true}
+    if(mk){Object.keys(mk).forEach(function(k){u["marks."+k]=mk[k]});ch=true}if(pd){Object.keys(pd).forEach(function(k){u["paid."+k]=pd[k]});ch=true}
+    b.k=cp(c.marks);b.p=cp(c.paid);
+    if(ch)q(function(){return cx.doc(c.id).update(u)})});
+  Object.keys(BASE.x).forEach(function(id){if(!sid[id]){delete BASE.x[id];q(function(){return cx.doc(id).delete()})}})
+}
+function pull(){
+  var S2=null,X2=null;
+  function merge(){
+    if(S2===null||X2===null)return;
+    if(PEND>0||pt){setTimeout(merge,600);return}
+    var ls=D.students,lx=D.sessions;
+    D.students=S2;D.sessions=X2;setBase();
+    if(!D.dbInit){
+      ls.forEach(function(s){if(!BASE.s[s.id])D.students.push(s)});
+      lx.forEach(function(c){var r=D.sessions.filter(function(x){return x.id===c.id})[0];
+        if(!r)D.sessions.push(c);else{r.marks=Object.assign({},c.marks,r.marks);r.paid=Object.assign({},c.paid,r.paid)}});
+      D.dbInit=true;SYN=true;doPush()
+    }else SYN=true;
+    saveLocal();
+    var a=document.activeElement;
+    if(!$("app").hidden&&TAB!=="bk"&&!(a&&(a.tagName==="INPUT"||a.tagName==="TEXTAREA")))render()
+  }
+  DB.collection("students").onSnapshot(function(sn){if(sn.metadata&&sn.metadata.fromCache)return;S2=sn.docs.map(function(d){return cp(d.data())});merge()},function(){});
+  DB.collection("sessions").onSnapshot(function(sn){if(sn.metadata&&sn.metadata.fromCache)return;X2=sn.docs.map(function(d){var o=cp(d.data());o.id=d.id;o.marks=o.marks||{};o.paid=o.paid||{};return o});merge()},function(){})
+}
+function syncNote(){return SYN?"✓ المزامنة المباشرة شغالة: أي تعديل بيظهر على باقي الموبايلات خلال ثواني":DB?"جاري الاتصال بالمزامنة…":"المزامنة المباشرة لم تتصل بعد، تأكد من الإنترنت"}
+function gn(g){return GR.filter(function(x){return x[0]===g})[0][1]}
+function renderQR(){
+  var g=$("qg");g.textContent="";
+  GR.forEach(function(x){var o=el("option",null,"الصف "+x[1]);o.value=x[0];if(x[0]===(QG||D.grade))o.selected=true;g.appendChild(o)})
+}
+function mkQR(){
+  var n=$("qn2").value.trim();
+  if(!n){toast("اكتب اسم الطالب");return}
+  var id;QG=$("qg").value;
+  do{id=uid()}while(D.students.some(function(s){return s.id===id}));
+  var s={id:id,g:QG,name:n,phone:$("qp").value.trim()};
+  D.students.push(s);save();
+  $("qn2").value="";$("qp").value="";
+  showQR(s,true);saveQR(s);renderNav()
+}
+function drawQR(){
+  var b=$("qb");b.textContent="";
+  if(typeof qrcode==="undefined"){b.textContent="تعذر تحميل مكتبة QR";return}
+  var q=qrcode(0,"M");q.addData("EK:"+QS.id);q.make();
+  var n=q.getModuleCount(),m=3,z=n+m*2,p="";
+  for(var r=0;r<n;r++)for(var c=0;c<n;c++)if(q.isDark(r,c))p+="M"+(c+m)+","+(r+m)+"h1v1h-1z";
+  b.innerHTML='<svg viewBox="0 0 '+z+' '+z+'" width="240" height="240" shape-rendering="crispEdges"><rect width="'+z+'" height="'+z+'" fill="'+(QD?"#0E1815":"#fff")+'"/><path d="'+p+'" fill="'+(QD?"#fff":"#000")+'"/></svg>';
+  [].forEach.call($("qt").children,function(x){x.setAttribute("aria-pressed",(x.getAttribute("data-q")==="d")===QD)})
+}
+function png(s){
+  return new Promise(function(res,rej){
+    var q=qrcode(0,"M");q.addData("EK:"+s.id);q.make();
+    var n=q.getModuleCount(),m=4,cell=Math.max(4,Math.floor(520/(n+m*2))),qs=cell*(n+m*2),W2=qs+80,H2=qs+150;
+    var c=document.createElement("canvas");c.width=W2;c.height=H2;var x=c.getContext("2d");
+    x.fillStyle=QD?"#0E1815":"#fff";x.fillRect(0,0,W2,H2);x.fillStyle=QD?"#fff":"#000";
+    for(var r=0;r<n;r++)for(var k=0;k<n;k++)if(q.isDark(r,k))x.fillRect(40+(k+m)*cell,30+(r+m)*cell,cell,cell);
+    x.textAlign="center";x.direction="rtl";
+    x.font="700 34px Cairo,Tahoma,sans-serif";x.fillText(s.name,W2/2,qs+75,W2-40);
+    x.font="400 26px Cairo,Tahoma,sans-serif";x.fillText("الصف "+gn(s.g),W2/2,qs+120,W2-40);
+    c.toBlob(function(b){b?res(b):rej()},"image/png")
+  })
+}
+async function saveQR(s){
+  var m=$("qm");m.textContent="";
+  if(typeof qrcode==="undefined"){m.textContent="تعذر تحميل مكتبة QR";return}
+  var b;try{b=await png(s)}catch(e){m.textContent="تعذر إنشاء الصورة";return}
+  try{if(!DL&&window.claude)DL=await window.claude.use("downloads")}catch(e){}
+  if(DL){
+    try{await DL.save({filename:"QR-"+s.name.replace(/[^\u0600-\u06FFa-zA-Z0-9]+/g,"-")+".png",data:b});m.textContent="تم حفظ الصورة";return}
+    catch(e){if(e&&e.code==="declined"){m.textContent="لم يتم الحفظ";return}}
+  }
+  var fr=new FileReader();
+  fr.onload=function(){m.textContent="اضغط مطولًا على الصورة (أو كليك يمين) واحفظها:";var i=document.createElement("img");i.src=fr.result;i.alt=s.name;i.style.cssText="display:block;margin:8px auto 0;max-width:100%;border-radius:8px";m.appendChild(i)};
+  fr.readAsDataURL(b)
+}
+function showQR(s,isNew){QS=s;$("qm").textContent="";$("qn").textContent=(isNew?"تم تسجيل ":"")+s.name+" في الصف "+gn(s.g);drawQR();$("qd").showModal()}
+function render(){theme();renderNav();
+  var g=$("gsel");g.textContent="";GR.forEach(function(x){var o=el("option",null,"الصف "+x[1]);o.value=x[0];if(x[0]===D.grade)o.selected=true;g.appendChild(o)});
+  $("gt").textContent=NV.filter(function(n){return n[0]===TAB})[0][1];
+  if(TAB==="att")renderAtt();else if(TAB==="ses")renderSes();else if(TAB==="qr")renderQR();else if(TAB==="scan")renderScan();else if(TAB==="bk"){$("bk").value="";$("bkS").textContent=syncNote()}else if(TAB==="pay")renderPay();else if(TAB==="wa")renderWA();else if(TAB==="rep")renderRep();else renderStu()}
+function tab(t){TAB=t;if(t!=="scan")camStop();NV.forEach(function(n){$("v-"+n[0]).hidden=n[0]!==t});document.body.classList.remove("open");render()}
+function add(){
+  var v=$("nm").value,parts=v.split(/[\n،,]+/).map(function(s){return s.trim()}).filter(Boolean),p=$("ph").value.trim();
+  parts.forEach(function(n){D.students.push({id:uid(),g:D.grade,name:n,phone:parts.length===1?p:""})});
+  if(parts.length){$("nm").value="";$("ph").value="";save();render()}
+}
+var FB_CFG={apiKey:"AIzaSyBWladFgWRdiXBIJwPWxc8auAQAnD16rjg",authDomain:"elkfrawy-8842c.firebaseapp.com",projectId:"elkfrawy-8842c",appId:"1:359346749249:web:2b448c84b8855aba9d6bc0"};
+var AUTH=null,FS=null,started=false;
+function unlock(){$("lock").hidden=true;$("app").hidden=false;$("mn").hidden=false;if(!started){started=true;DB=FS;pull()}render()}
+function lock(){if(AUTH)AUTH.signOut().then(function(){location.reload()})}
+async function tryLogin(){
+  $("err").textContent="";
+  if(!AUTH){$("err").textContent="لم يتم إعداد Firebase بعد";return}
+  try{await AUTH.signInWithEmailAndPassword($("em").value.trim(),$("pw").value);$("pw").value=""}
+  catch(e){$("err").textContent="الإيميل أو كلمة المرور غير صحيحة"}
+}
+$("go").onclick=tryLogin;
+$("pw").onkeydown=function(e){if(e.key==="Enter")tryLogin()};
+$("mn").onclick=function(){document.body.classList.toggle("open")};
+$("ses").onchange=function(){D.cur=this.value;save();renderAtt()};
+$("newS").onclick=function(){var s=mk(gs().length+1,cur().fee);D.sessions.push(s);D.cur=s.id;save();renderSes()};
+$("gsel").onchange=function(){D.grade=this.value;D.cur=null;save();render()};
+$("thb").onclick=function(){D.theme=isDark()?"light":"dark";save();theme()};
+$("ov").onclick=function(){document.body.classList.remove("open")};
+$("addBtn").onclick=add;
+$("nm").onkeydown=function(e){if(e.key==="Enter")add()};
+$("nm").onpaste=function(){setTimeout(function(){if(/\n/.test($("nm").value))add()},0)};
+$("q").oninput=function(){if(TAB!=="att")tab("att");else renderAtt()};
+$("allP").onclick=function(){var c=cur();gst().forEach(function(s){c.marks[s.id]="p"});save();renderAtt()};
+$("allA").onclick=function(){var c=cur();gst().forEach(function(s){delete c.marks[s.id]});save();renderAtt()};
+$("cpR").onclick=function(){copy(report(),"تم نسخ تقرير الحصة")};
+$("cd").onkeydown=function(e){
+  if(e.key!=="Enter")return;
+  var id=this.value.trim().replace(/^EK:/i,""),s=D.students.filter(function(x){return x.id===id})[0];
+  if(s){if(s.g!==D.grade){D.grade=s.g;D.cur=null}cur().marks[s.id]="p";save();render();toast("تم تحضير "+s.name+" (الصف "+gn(s.g)+")")}else toast("كود غير معروف");
+  this.value=""
+};
+$("ok").onchange=function(){W=this.checked;waList()};
+$("tpl").oninput=function(){D.tpl=this.value;save();waList()};
+$("qt").onclick=function(e){var q=e.target.getAttribute("data-q");if(q){QD=q==="d";drawQR()}};
+$("qx").onclick=function(){$("qd").close()};
+$("qs").onclick=function(){if(QS)saveQR(QS)};
+$("qmk").onclick=mkQR;
+$("bkC").onclick=function(){var j=JSON.stringify({students:D.students,sessions:D.sessions,grade:D.grade,cur:D.cur,tpl:D.tpl});$("bk").value=j;copy(j,"تم نسخ البيانات، الصقها في واتساب")};
+$("bkR").onclick=function(){
+  try{var p=JSON.parse($("bk").value.trim());
+    if(!p||!Array.isArray(p.students)||!Array.isArray(p.sessions))throw 0;
+    var sn=JSON.stringify(D);
+    D.students=p.students;D.sessions=p.sessions;D.grade=p.grade||D.grade;D.cur=p.cur||null;if(p.tpl)D.tpl=p.tpl;
+    save();$("bk").value="";render();toast("تمت الاستعادة: "+p.students.length+" طالب",sn)
+  }catch(e){$("bkM").textContent="النص غير صالح، انسخه كامل من الجهاز الأول"}
+};
+$("scOn").onclick=function(){$("camAsk").hidden=false};
+$("camYes").onclick=function(){$("camAsk").hidden=true;camStart()};
+$("camNo").onclick=function(){$("camAsk").hidden=true;$("sres").textContent="تمام، استخدم زرار التقاط صورة للكود"};
+$("scOff").onclick=camStop;
+$("scF").onchange=function(){
+  var f=this.files&&this.files[0];this.value="";if(!f)return;
+  var fr=new FileReader();
+  fr.onload=function(){var i=new Image();i.onload=async function(){var t=await decode(i);$("sres").textContent=t?hit(t):"مفيش كود واضح في الصورة، قرّب وجرّب تاني";renderScan()};i.src=fr.result};
+  fr.readAsDataURL(f)
+};
+$("qn2").onkeydown=function(e){if(e.key==="Enter")mkQR()};
+theme();
+DL={save:function(o){return new Promise(function(res){var a=document.createElement("a");a.href=URL.createObjectURL(o.data);a.download=o.filename;document.body.appendChild(a);a.click();a.remove();res()})}};$("qs").hidden=false;
+$("mn").hidden=true;
+if(!window.firebase||!FB_CFG.apiKey){$("err").textContent="لم يتم إعداد Firebase بعد: ضع إعدادات المشروع في أول السكربت (FB_CFG)"}
+else{firebase.initializeApp(FB_CFG);AUTH=firebase.auth();FS=firebase.firestore();AUTH.onAuthStateChanged(function(u){if(u)unlock()})}
+})();
+</script>
+</body>
+</html>
